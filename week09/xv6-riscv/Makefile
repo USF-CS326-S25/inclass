@@ -140,6 +140,11 @@ UPROGS=\
 	$U/_wc\
 	$U/_zombie\
 	$U/_redir\
+	$U/_redir2\
+	$U/_pipe1\
+	$U/_pipe2\
+	$U/_pipe3\
+	$U/_pipe4\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)
