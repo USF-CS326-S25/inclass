@@ -94,7 +94,7 @@ $U/initcode: $U/initcode.S
 tags: $(OBJS) _init
 	etags *.S *.c
 
-ULIB = $U/ulib.o $U/usys.o $U/printf.o $U/umalloc.o
+ULIB = $U/ulib.o $U/usys.o $U/printf.o $U/umalloc.o $U/list.o
 
 _%: %.o $(ULIB)
 	$(LD) $(LDFLAGS) -T $U/user.ld -o $@ $^
@@ -134,18 +134,18 @@ UPROGS=\
 	$U/_mkdir\
 	$U/_rm\
 	$U/_sh\
+	$U/_sort\
 	$U/_stressfs\
 	$U/_usertests\
 	$U/_grind\
 	$U/_wc\
 	$U/_zombie\
-	$U/_redir\
-	$U/_redir2\
-	$U/_pipe1\
-	$U/_pipe2\
-	$U/_pipe3\
-	$U/_pipe4\
-	$U/_she\
+	$U/_hello\
+	$U/_listtest\
+	$U/_busy\
+	$U/_busymany\
+	$U/_getpid\
+	$U/_getkd\
 
 fs.img: mkfs/mkfs README $(UPROGS)
 	mkfs/mkfs fs.img README $(UPROGS)
