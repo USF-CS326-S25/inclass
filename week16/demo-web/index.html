@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Simple Container Demonstration</title>
+  <style>
+    body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; line-height: 1.6; }
+    h1, h2 { color: #2c3e50; }
+    pre { background: #f4f4f4; padding: 10px; overflow-x: auto; border-left: 4px solid #ccc; }
+    code { font-family: monospace; }
+    section { margin-bottom: 2em; }
+    a { color: #3498db; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+<h1>Simple Container Demonstration</h1>
+
+<section>
+  <h2>1 · Prerequisites on macOS</h2>
+  <pre><code># 1. Install & start Docker Desktop (GUI wizard)
+# 2. In a Terminal, check it works:
+docker version</code></pre>
+  <p>Docker Desktop gives you Docker Engine, Compose, and a GUI dashboard in one installer for Apple silicon and Intel Macs</p>
+  <p><a href="https://docs.docker.com/" target="_blank">Docker Documentation</a></p>
+</section>
+
+<section>
+  <h2>2 · Build & Run the Container Locally</h2>
+
+  <h3>a) Project Skeleton</h3>
+  <pre><code>demo-web/
+├─ Dockerfile
+└─ index.html</code></pre>
+
+  <h3>Dockerfile</h3>
+  <pre><code>FROM python:3.12-slim
+WORKDIR /app
+COPY index.html .
+EXPOSE 8000
+CMD ["python", "-m", "http.server", "8000", "--bind", "0.0.0.0"]</code></pre>
+
+  <h3>b) Build</h3>
+  <pre><code>cd demo-web
+docker build -t demo-web:1 .</code></pre>
+  <p>The <code>docker build -t</code> command creates a local image and tags it in one step</p>
+  <p><a href="https://docs.docker.com/" target="_blank">Docker Documentation</a></p>
+
+  <h3>c) Run and Test</h3>
+  <pre><code>docker run --name demo -p 8000:8000 demo-web:1</code></pre>
+  <p><code>-p 8000:8000</code> publishes container port 8000 to your host so you can open <a href="http://localhost:8000" target="_blank">http://localhost:8000</a></p>
+  <p><a href="https://docs.docker.com/" target="_blank">Docker Documentation</a></p>
+
+  <p>Stop with <code>Ctrl-C</code> and remove the container when you’re done:</p>
+  <pre><code>docker rm -f demo</code></pre>
+</section>
+
+<section>
+  <h2>3 · Push the Same Image to Docker Hub</h2>
+  <pre><code># one-time log-in
+docker login
+
+# tag and push
+DOCKERUSER=gbenprof        # <- swap for your Docker Hub username
+docker tag demo-web:1 $DOCKERUSER/demo-web:1
+docker push $DOCKERUSER/demo-web:1</code></pre>
+  <p>The push uploads the layers to your personal repository on Docker Hub</p>
+  <p><a href="https://docs.docker.com/" target="_blank">Docker Documentation</a></p>
+</section>
+
+<section>
+  <h2>4 · Cloud Deployment Options</h2>
+
+  <h3>Option A · Google Cloud Run</h3>
+  <p><strong>Console:</strong> Cloud Run → Deploy container → paste <code>docker.io/$DOCKERUSER/demo-web:1</code>, accept defaults, Deploy</p>
+  <p><a href="https://cloud.google.com/run" target="_blank">Google Cloud</a></p>
+
+  <p><strong>CLI:</strong></p>
+  <pre><code>gcloud run deploy demo-web \
+  --image=docker.io/$DOCKERUSER/demo-web:1 \
+  --platform=managed --region=us-central1 --allow-unauthenticated</code></pre>
+  <p>Cloud Run gives you a public HTTPS URL with automatic scaling to zero when idle</p>
+  <p><a href="https://cloud.google.com/run" target="_blank">Google Cloud</a></p>
+
+  <h3>Option B · AWS App Runner</h3>
+  <p>Create service → Container registry → Docker Hub</p>
+  <p>Image URI: <code>docker.io/$DOCKERUSER/demo-web:1</code></p>
+  <p>Port 8000 → Next → Create & deploy</p>
+  <p>App Runner handles load-balancing, HTTPS, and scale-to-zero</p>
+  <p><a href="https://docs.aws.amazon.com/apprunner/" target="_blank">AWS Documentation</a></p>
+
+  <h3>Option C · Fly.io</h3>
+  <pre><code>brew install flyctl
+flyctl auth signup
+cd demo-web
+flyctl launch --name demo-web-fly --image docker.io/$DOCKERUSER/demo-web:1</code></pre>
+  <p><code>fly launch</code> detects the Dockerfile, provisions a VM edge-node, and returns a URL like https://demo-web-fly.fly.dev</p>
+  <p><a href="https://fly.io/" target="_blank">Fly</a></p>
+</section>
+
+<section>
+  <h2>5 · Cleanup Commands</h2>
+  <pre><code># Docker Desktop—remove image locally
+docker image rm demo-web:1
+
+# Cloud Run
+gcloud run services delete demo-web --region=us-central1
+
+# App Runner
+aws apprunner delete-service --service-arn &lt;ARN&gt;
+
+# Fly.io
+flyctl apps destroy demo-web-fly</code></pre>
+</section>
+
+</body>
+</html>
